@@ -17,9 +17,13 @@ import Avatar from '@mui/material/Avatar';
 import { Box } from '@mui/system';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import axios from 'axios';
+import { saveBankAccount } from './api';
 
 
 export default function BankAccountAdd() {
+
+    const navigate = useNavigate();
+
     const [open, setOpen] = useState(false);
     const [bank, setbank] = useState('');
     const [account, setaccount] = useState('');
@@ -35,9 +39,23 @@ export default function BankAccountAdd() {
     };
 
     const onSubmit = async () => {
-        const response = await axios.post('http://localhost:8000/bank_accounts', { bank:bank,account: account, ifsc: ifsc })
-        console.log(response)
-        handleClose()
+        try {
+            const params = {
+                bank: bank,
+                account: account,
+                ifsc: ifsc
+            }
+            const response = await saveBankAccount(params)
+            console.log(response);
+            // TODO: Handle successful response for status code 200
+            if(response.status === 200) {
+                handleClose();
+                navigate(0)
+            }
+
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     return (

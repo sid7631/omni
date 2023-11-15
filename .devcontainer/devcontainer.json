@@ -7,7 +7,6 @@
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 	"features": {
 		"ghcr.io/devcontainers/features/node:1": {},
-		"ghcr.io/itsmechlark/features/redis-server:1": {}
 	},
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
@@ -28,7 +27,8 @@
 				"VisualStudioExptTeam.vscodeintellicode",
 				"ms-python.autopep8",
 				"dsznajder.es7-react-js-snippets",
-				"ms-azuretools.vscode-docker"
+				"ms-azuretools.vscode-docker",
+				"ms-python.python"
 			]
 		}
 	},

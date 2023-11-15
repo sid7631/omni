@@ -27,3 +27,5 @@ back/.venv
 back/.env
 back/data/
 back/__pycache__/*
+back/database.ini
+back/src/__pycache__/*

@@ -59,3 +59,46 @@
 	background-color: #7f8a9a;
 }
 
+
+
+.account-page {
+  font-family: sans-serif;
+  background-color: #fff;
+}
+
+.account-page avatar {
+  margin-right: 1rem;
+}
+
+.account-page h6 {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.account-page list {
+  margin-top: 1rem;
+  padding: 1rem;
+}
+
+.account-page list item {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.account-page list item:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.account-page list item li {
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.account-page button {
+  width: 50%;
+  margin: auto;
+}
+
+.account-page divider {
+  margin: 1rem 0;
+}

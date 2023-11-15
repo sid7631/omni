@@ -40,7 +40,15 @@ const FileUpload = (props) => {
                 onupdatefiles={setFiles}
                 allowMultiple={props.allowMultiple}
                 maxFiles={props.maxFiles}
-                server={props.server}
+                // server={props.server}
+                server={{
+                    process: {
+                        url: props.server,
+                        headers: {
+                            Authorization : `Bearer ${localStorage.getItem('token')}`
+                        }
+                    }
+                }}
                 name="file"
                 credits={false}
                 labelIdle={'Drag & Drop your ' + props.title + ' or <span class="filepond--label-action">Browse</span>'}

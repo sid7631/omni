@@ -12,6 +12,14 @@ import BankAccounts from './components/finance/BankAccounts';
 import BankAccountDetails from './components/finance/BankAccountDetails';
 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import RegistrationPage from './components/common/RegistrationPage';
+import { AlertProvider } from './components/common/AlertContext';
+import GlobalAlert from './components/common/GlobalAlert';
+import LoginPage from './components/common/LoginPage';
+import { UserProvider } from './components/common/UserContext';
+import ProtectedRoute from './components/common/ProtectedRoute';
+import SettingsPage from './components/common/users/SettingsPage';
+import AccountPage from './components/common/users/AccountPage';
 
 
 const theme = createTheme();
@@ -19,28 +27,36 @@ const theme = createTheme();
 function App() {
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{ display: 'flex' }}>
-        <CssBaseline />
-        <Header />
-        {/* <Sidebar /> */}
-        <Box component="main" sx={{ flexGrow: 1, p: 4 }}>
-          <Toolbar />
-          <Router>
-            <Routes>
-              <Route exact path="/" element={<Home />} />
-              <Route exact path="/finance/holdings" element={<Holdings />} />
-              <Route exact path="/finance" element={<FinanceDashboard />} />
-              <Route exact path="/finance/bankaccounts" element={<BankAccounts />} >
-                <Route
-                  path="/finance/bankaccounts/details:account"
-                  element={<BankAccountDetails />}
-                />
-              </Route>
-            </Routes>
-          </Router>
-        </Box>
-
-      </Box>
+      <AlertProvider>
+        <UserProvider>
+          <Box sx={{ display: 'flex' }}>
+            <CssBaseline />
+            <Header />
+            <GlobalAlert />
+            {/* <Sidebar /> */}
+            <Box component="main" sx={{ flexGrow: 1, p: 4 }}>
+              <Toolbar />
+              <Router>
+                <Routes>
+                  <Route exact path="/" element={<ProtectedRoute element={Home} />} />
+                  <Route exact path="/register" element={<RegistrationPage />} />
+                  <Route exact path='/login' element={<LoginPage />} />
+                  <Route exact path="/finance/holdings" element={< ProtectedRoute element={Holdings} />} />
+                  
+                  <Route exact path="/finance" element={<ProtectedRoute element={FinanceDashboard} />} />
+                  <Route exact path="/finance/bankaccounts" element={<ProtectedRoute element={BankAccounts} />} >
+                    <Route
+                      path="/finance/bankaccounts/details:account"
+                      element={<ProtectedRoute element={BankAccountDetails} />}
+                    />
+                  </Route>
+                  <Route path='/settings' element={<ProtectedRoute element={AccountPage} />} />
+                </Routes>
+              </Router>
+            </Box>
+          </Box>
+        </UserProvider>
+      </AlertProvider>
     </ThemeProvider>
   );
 }
