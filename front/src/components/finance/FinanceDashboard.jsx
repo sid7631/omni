@@ -19,6 +19,12 @@ const finance_cards = [
         meta: 'Track Your Finance',
         route: '/finance/holdings'
     },
+    {
+        title: 'Stocks',
+        description: 'Track your Personal items',
+        meta: 'Track Your Finance',
+        route: '/finance/stocks'
+    },
 ]
 
 const FinanceDashboard = () => {

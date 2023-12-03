@@ -12,6 +12,7 @@ import Fingerprint from '@mui/icons-material/Fingerprint';
 import HoldingsTable from '../common/HoldingsTable';
 import { useAlert } from '../common/AlertContext';
 import PieChart from './PieChart';
+import { extractSectors } from '../common/utils';
 
 
 const headCells = [
@@ -65,7 +66,7 @@ const headCells = [
         label: 'P&L%',
     },
     {
-        id:'weight',
+        id: 'weight',
         numeric: true,
         disablePadding: false,
         label: 'Weightage'
@@ -81,6 +82,7 @@ const Holdings = () => {
     const [holdings, setholdings] = useState(null);
     const [summary, setsummary] = useState(null);
     const [selectedDate, setSelectedDate] = React.useState(null);
+    const [selectedSectors, setselectedSectors] = useState(null);
 
 
     const fetchData = async () => {
@@ -113,10 +115,21 @@ const Holdings = () => {
         setSelectedDate(date);
     };
 
+    const filterHoldings = (param) => {
+        if (param === null) {
+            return holdings
+        } else {
+            return holdings.filter((holding) => holding.sector === param);
+        }
+    }
+
+    const updateSelectedSectors = (param) => {
+        setselectedSectors(param)
+    }
 
     return (
         <Box>
-            <Box width='100%' sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Box width='100%' sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <DateDropdown label={'Date'} handleDateChange={handleDateChange} selectedDate={selectedDate} />
                     <IconButton aria-label="fingerprint" color="primary" sx={{ ml: 2 }} size="large" onClick={fetchData}>
@@ -128,13 +141,22 @@ const Holdings = () => {
                 </Box>
 
             </Box>
-            {holdings === null || summary === null?
+            {holdings === null || summary === null ?
                 ''
                 :
                 <>
-                
-                <HoldingsTable title='Holdings' data={holdings} headCells={headCells} headerSummary={summary} />
-                {holdings.length > 0 ? <PieChart data={holdings} /> : ''}
+
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
+                        {holdings.length && <>
+                            <Box>
+                                <PieChart data={holdings} chartType='stock' />
+                            </Box>
+                            <Box>
+                                <PieChart data={holdings} chartType='sector' updateCallback={updateSelectedSectors} />
+                            </Box>
+                        </>}
+                    </Box>
+                    <HoldingsTable title='Holdings' data={filterHoldings(selectedSectors)} headCells={headCells} headerSummary={summary} />
                 </>
 
             }

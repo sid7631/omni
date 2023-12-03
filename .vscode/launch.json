@@ -5,13 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch React in Chrome",
+            "name": "Python: Current File",
+            "type": "python",
             "request": "launch",
-            "type": "chrome",
-            "url": "http://localhost:3000",
-            "webRoot": "${workspaceFolder}/front"
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true
         },
-        
         {
             "name": "Python: Flask",
             "type": "python",
@@ -20,7 +20,7 @@
             "env": {
                 "FLASK_APP": "${workspaceFolder}/back/app.py",
                 "FLASK_DEBUG": "1",
-                "FLASK_ENV":"development"
+                "FLASK_ENV": "development"
             },
             "args": [
                 "run",
@@ -29,6 +29,24 @@
             ],
             "jinja": true,
             "justMyCode": true
+        },
+        {
+            "name": "Launch React in Front Folder",
+            "request": "launch",
+            "type": "chrome",
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}/front"
+        },
+        {
+            "name": "Run React",
+            "request": "launch",
+            "type": "node",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "start"
+            ],
+            "cwd": "${workspaceFolder}/front"
         }
     ]
 }
+         

@@ -15,12 +15,41 @@ CREATE TABLE IF NOT EXISTS omni.users (
     username VARCHAR(50) NOT NULL UNIQUE,
     email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    client_id VARCHAR(50),
+    -- client_id VARCHAR(50),
     full_name VARCHAR(100),
     birth_date DATE,
     user_settings JSONB,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS omni.trading_accounts (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES omni.users(user_id),
+    client_id VARCHAR(50) UNIQUE,
+    broker_id VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (user_id, client_id, broker_id)
+);
+
+CREATE TABLE IF NOT EXISTS omni.stock_trades (
+    symbol VARCHAR(10),
+    isin VARCHAR(12),
+    trade_date DATE,
+    exchange VARCHAR(5),
+    segment VARCHAR(2),
+    series VARCHAR(2),
+    trade_type VARCHAR(4),
+    auction BOOLEAN,
+    quantity INTEGER,
+    price NUMERIC(10, 2),
+    trade_id BIGINT,
+    order_id BIGINT,
+    order_execution_time TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_id INTEGER REFERENCES omni.users(user_id),
+    UNIQUE(order_id, trade_id)
 );
 
 CREATE TABLE IF NOT EXISTS omni.stock_data (
@@ -40,9 +69,39 @@ CREATE TABLE IF NOT EXISTS omni.stock_data (
     unrealized_pl_pct NUMERIC NOT NULL,
     load_dt timestamp not null default CURRENT_TIMESTAMP,
     user_name VARCHAR(50) NOT NULL,
-    created_by VARCHAR(50) References omni.users(username),
+    created_by INTEGER References omni.users(user_id),
     UNIQUE (isin, record_date, user_name)
 );
+
+CREATE TABLE IF NOT EXISTS omni.stock_recommendations (
+    id SERIAL PRIMARY KEY,
+    buy_price NUMERIC NOT NULL,
+    isin VARCHAR(20) NOT NULL,
+    recommendation_date TIMESTAMP NOT NULL,
+    target_price NUMERIC NOT NULL,
+    sector VARCHAR(50) NULL,
+    symbol VARCHAR(20) NOT NULL,
+    duration VARCHAR(20) NOT NULL,
+    is_active BOOLEAN NOT NULL default TRUE,
+    load_dt timestamp not null default CURRENT_TIMESTAMP,
+    UNIQUE (symbol, recommendation_date)
+);
+
+CREATE TABLE IF NOT EXISTS omni.stock_trades_recommendation (
+    id SERIAL PRIMARY KEY,
+    buy_price NUMERIC NOT NULL,
+    isin VARCHAR(20) NOT NULL,
+    recommendations INTEGER REFERENCES omni.stock_recommendations(id),
+    symbol VARCHAR(20) NOT NULL,
+    sell_price NUMERIC NOT NULL,
+    trade_date TIMESTAMP NOT NULL,
+    quantity INTEGER NOT NULL,
+    trade_type VARCHAR(4) NOT NULL,
+    load_dt timestamp not null default CURRENT_TIMESTAMP,
+    client_id VARCHAR(50) NOT NULL References omni.trading_accounts(client_id),
+    UNIQUE (symbol, trade_date)
+);
+
 
 CREATE TABLE IF NOT EXISTS omni.bank_accounts (
     id SERIAL PRIMARY KEY,
@@ -51,7 +110,7 @@ CREATE TABLE IF NOT EXISTS omni.bank_accounts (
     account VARCHAR(255),
     ifsc VARCHAR(255),
     amount INTEGER,
-    created_by VARCHAR(50) References omni.users(username),
+    created_by INTEGER References omni.users(user_id),
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (bank, account)
 );
@@ -64,7 +123,7 @@ CREATE TABLE omni.bank_transactions (
     credit_amount NUMERIC,
     balance NUMERIC,
     account VARCHAR(20),
-    created_by VARCHAR(50) References omni.users(username),
+    created_by INTEGER References omni.users(user_id),
     UNIQUE (narration,ref_number, value_date, balance, account)
 );
 

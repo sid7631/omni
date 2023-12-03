@@ -20,20 +20,59 @@ import { UserProvider } from './components/common/UserContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import SettingsPage from './components/common/users/SettingsPage';
 import AccountPage from './components/common/users/AccountPage';
+import StocksDashboard from './components/finance/StocksDashboard';
+import StockDetails from './components/common/stocks/StockDetails';
+import { useTheme } from '@emotion/react';
+import React from 'react';
+import SidebarStocks from './components/common/sidebars/SidebarStocks';
+import RecommendationsDashboard from './components/finance/RecommendationsDashboard';
+import { LoadingProvider } from './components/common/loading/Loading';
+import { LoadingIndicatorGlobal } from './components/common/LoadingIndicator';
 
 
-const theme = createTheme();
+const theme = createTheme({
+  typography: {
+    fontFamily: [
+      '-apple-system', 
+      'BlinkMacSystemFont', 
+      'sans-serif'
+    ].join(','),
+  },
+  components: {
+    MuiAppBar: {
+      styleOverrides: {
+        colorPrimary: {
+          backgroundColor: "white",
+          color: "black",
+        }
+      }
+    }
+  }
+});
 
 function App() {
+  
+  const [open, setOpen] = React.useState(false);
+
+  const handleDrawerOpen = () => {
+    setOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setOpen(false);
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <AlertProvider>
         <UserProvider>
-          <Box sx={{ display: 'flex' }}>
+        <LoadingProvider>
+        <LoadingIndicatorGlobal />
+          <Box sx={{ display: 'flex' , backgroundColor: '#f6f7f9', minHeight: '100vh' }}>
             <CssBaseline />
-            <Header />
+            <Header open={open} handleDrawerOpen={handleDrawerOpen} />
             <GlobalAlert />
-            {/* <Sidebar /> */}
+            <SidebarStocks open={open} handleDrawerClose={handleDrawerClose} />
             <Box component="main" sx={{ flexGrow: 1, p: 4 }}>
               <Toolbar />
               <Router>
@@ -42,6 +81,13 @@ function App() {
                   <Route exact path="/register" element={<RegistrationPage />} />
                   <Route exact path='/login' element={<LoginPage />} />
                   <Route exact path="/finance/holdings" element={< ProtectedRoute element={Holdings} />} />
+                  <Route exact path="/finance/univest" element={<ProtectedRoute element={RecommendationsDashboard} />} />
+                  <Route exact path="/finance/stocks" element={<ProtectedRoute element={StocksDashboard} />} >
+                    <Route
+                      path='/finance/stocks/:symbol'
+                      element={<ProtectedRoute element={StockDetails} />}
+                    />
+                  </Route>
                   
                   <Route exact path="/finance" element={<ProtectedRoute element={FinanceDashboard} />} />
                   <Route exact path="/finance/bankaccounts" element={<ProtectedRoute element={BankAccounts} />} >
@@ -55,6 +101,7 @@ function App() {
               </Router>
             </Box>
           </Box>
+          </LoadingProvider>
         </UserProvider>
       </AlertProvider>
     </ThemeProvider>

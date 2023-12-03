@@ -1,80 +1,106 @@
-import React from 'react';
-import { Box, Typography, List, ListItem, ListItemText, Avatar } from '@mui/material';
-import { useUser } from '../UserContext';
+import React, { useState } from 'react';
+import { Button, TextField, Container, Typography, Snackbar } from '@mui/material';
+import MuiAlert from '@mui/material/Alert';
+import axios from 'axios';
+import { addBroker } from '../api';
 
-const AccountPage = () => {
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
-    const { user } = useUser();
+function AccountPage() {
+  const [formData, setFormData] = useState({
+    client_id: '',
+    broker_id: '',
+  });
 
-    console.log(user)
-    
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    try {
+      // You should replace 'your-api-endpoint' with the actual endpoint for inserting data.
+      const response = await addBroker(formData);
+
+      if (response.status === 200) {
+        setSnackbarSeverity('success');
+        setSnackbarMessage('Data inserted successfully');
+      } else {
+        setSnackbarSeverity('error');
+        setSnackbarMessage('Error inserting data');
+      }
+    } catch (error) {
+      setSnackbarSeverity('error');
+      setSnackbarMessage('Error inserting data');
+    }
+
+    setOpenSnackbar(true);
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpenSnackbar(false);
+  };
+
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h6">Account</Typography>
-
-      <Box sx={{ mt: 3 }}>
-        <List>
-          <ListItem>
-            <Avatar alt="Mats Karlsson" src="https://cdn.dribbble.com/users/10589568/avatars/original/660a613c33599e0c6a592d7b58e617f5.png?1398224630" />
-            <ListItemText primary="Mats Karlsson" secondary="Roof Technologies" />
-          </ListItem>
-        </List>
-      </Box>
-
-      <Box sx={{ mt: 3 }}>
-        <List>
-          <ListItem>
-            <ListItemText primary="Edit Profile" />
-          </ListItem>
-          <ListItem>
-            <ListItemText primary="Settings" />
-          </ListItem>
-          <ListItem>
-            <ListItemText primary="General" />
-          </ListItem>
-          <ListItem>
-            <ListItemText primary="Account" />
-          </ListItem>
-          <ListItem>
-            <ListItemText primary="Name" />
-          </ListItem>
-          <ListItem>
-            <ListItemText primary="Security and Access" />
-          </ListItem>
-          <ListItem>
-            <ListItemText primary="Email" />
-          </ListItem>
-          <ListItem>
-            <ListItemText primary="Notifications" />
-          </ListItem>
-          <ListItem>
-            <ListItemText primary="Subscriptions" />
-          </ListItem>
-          <ListItem>
-            <ListItemText primary="Phone" />
-          </ListItem>
-          <ListItem>
-            <ListItemText primary="Accessibility" />
-          </ListItem>
-          <ListItem>
-            <ListItemText primary="Monetization" />
-          </ListItem>
-          <ListItem>
-            <ListItemText primary="Appearance" />
-          </ListItem>
-          <ListItem>
-            <ListItemText primary="Fox" />
-          </ListItem>
-          <ListItem>
-            <ListItemText primary="Change your password" />
-          </ListItem>
-          <ListItem>
-            <ListItemText primary="Deactivate Account" />
-          </ListItem>
-        </List>
-      </Box>
-    </Box>
+    <Container maxWidth="sm" style={{ marginTop: '50px' }}>
+      <Typography variant="h4" gutterBottom>
+        Trading Account Form
+      </Typography>
+      <form onSubmit={handleSubmit}>
+        {/* <TextField
+          fullWidth
+          label="User ID"
+          name="user_id"
+          value={formData.user_id}
+          onChange={handleInputChange}
+          margin="normal"
+          required
+        /> */}
+        <TextField
+          fullWidth
+          label="Client ID"
+          name="client_id"
+          value={formData.client_id}
+          onChange={handleInputChange}
+          margin="normal"
+          required
+        />
+        <TextField
+          fullWidth
+          label="Broker ID"
+          name="broker_id"
+          value={formData.broker_id}
+          onChange={handleInputChange}
+          margin="normal"
+          required
+        />
+        <Button type="submit" variant="contained" color="primary" style={{ marginTop: '20px' }}>
+          Submit
+        </Button>
+      </form>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+    </Container>
   );
-};
+}
 
 export default AccountPage;

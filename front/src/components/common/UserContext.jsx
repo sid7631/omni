@@ -1,7 +1,6 @@
 // UserContext.js
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import LoadingIndicator from './LoadingIndicator';
-import { Bars } from  'react-loader-spinner'
 
 const UserContext = createContext();
 
@@ -64,7 +63,11 @@ const UserProvider = ({ children }) => {
     dispatch({ type: 'LOGOUT', payload: false });
   }
 
-  return <UserContext.Provider value={{ ...state, login, logout }}>
+  const loading = (payload) => {
+    dispatch({ type: 'LOADING', payload: payload });
+  }
+
+  return <UserContext.Provider value={{ ...state, login, logout, loading }}>
     {state.loading ? 
     <LoadingIndicator/>
   : children}

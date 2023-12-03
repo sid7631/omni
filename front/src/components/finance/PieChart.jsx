@@ -1,48 +1,31 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
+import { formatDataForSectorChart, formatDataForStockChart } from '../common/utils';
+import drilldown from 'highcharts/modules/drilldown';
 
-const PieChart = ({ data, name='symbol', y='weight', title='Stock Holdings Distribution' }) => {
-  // Transform data into a format suitable for Highcharts
-  
-  const chartData = data.map((holding) => ({
-    name: holding[name],
-    y: holding[y],
-  }));
+drilldown(Highcharts)
 
-  console.log(chartData)
+const PieChart = ({ data, chartType = 'stock' ,drilldown = false, name = 'symbol', y = 'weight', title = 'Stock Holdings Distribution', updateCallback=null }) => {
 
-  const options = {
-    chart: {
-      type: 'pie',
-    },
-    title: {
-      text: 'Stock Holdings Distribution',
-    },
-    plotOptions: {
-      pie: {
-        allowPointSelect: true,
-        cursor: 'pointer',
-        dataLabels: {
-          enabled: true,
-          format: '<b>{point.name}</b>: {point.percentage:.2f} %',
-        },
-      },
-    },
-    series: [
-      {
-        name: 'Stocks',
-        colorByPoint: true,
-        data: chartData,
-      },
-    ],
-  };
+  if(chartType === 'sector') {
+    const options = formatDataForSectorChart(data, updateCallback)
+    return (
+      <div>
+        <HighchartsReact highcharts={Highcharts} options={options}>
+        </HighchartsReact>
+      </div>
+    );
+  } else if(chartType === 'stock') {
+    const options = formatDataForStockChart(data)
+    return (
+      <div>
+        <HighchartsReact highcharts={Highcharts} options={options}>
+        </HighchartsReact>
+      </div>
+    );
+  }
 
-  return (
-    <div>
-      <HighchartsReact highcharts={Highcharts} options={options} />
-    </div>
-  );
 };
 
 export default PieChart;

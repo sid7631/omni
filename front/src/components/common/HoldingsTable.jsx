@@ -19,9 +19,11 @@ import Tooltip from '@mui/material/Tooltip';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { visuallyHidden } from '@mui/utils';
 import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
-import { formatAmount } from './utils';
+import { formatAmount, plMarker } from './utils';
 import NoDataOverlay from './NoDataOverlay';
 import {isEmpty} from 'lodash';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import { useNavigate } from 'react-router-dom';
 
 
 function descendingComparator(a, b, orderBy) {
@@ -54,15 +56,7 @@ function stableSort(array, comparator) {
     return stabilizedThis.map((el) => el[0]);
 }
 
-function plMarker(num, percentage = false) {
-    const formatedNum = parseInt(num.replace(/,/g, ''), 10);
 
-    if (formatedNum > 0) {
-        return <Box sx={{ color: 'success.main' }}>{num}{percentage ? '%' : ''}</Box>
-    } else {
-        return <Box sx={{ color: 'error.main' }}>{num}{percentage ? '%' : ''}</Box>
-    }
-}
 
 function EnhancedTableHead(props) {
     const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } =
@@ -220,9 +214,14 @@ const EnhancedTableToolbar = (props) => {
 
             {numSelected > 0 ? (
                 <Tooltip title="Delete">
+                    <>
+                    <IconButton onClick={props.viewSelected}>
+                        <AssessmentIcon />
+                    </IconButton>
                     <IconButton>
                         <DeleteIcon />
                     </IconButton>
+                    </>
                 </Tooltip>
             ) : (
                 ''
@@ -247,6 +246,8 @@ export default function HoldingsTable(props) {
     const [page, setPage] = React.useState(0);
     const [dense, setDense] = React.useState(true);
     const [rowsPerPage, setRowsPerPage] = React.useState(50);
+
+    const navigate = useNavigate();
 
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
@@ -298,6 +299,10 @@ export default function HoldingsTable(props) {
 
     const isSelected = (name) => selected.indexOf(name) !== -1;
 
+    const viewSelected = () => {
+        navigate('/holdings/view:' + selected.join(','));
+    }
+
     // Avoid a layout jump when reaching the last page with empty props.data.
     const emptyRows =
         page > 0 ? Math.max(0, (1 + page) * rowsPerPage - props.data.length) : 0;
@@ -305,7 +310,7 @@ export default function HoldingsTable(props) {
     return (
         <Box sx={{ width: '100%' }}>
             <Paper sx={{ width: '100%', mb: 2 }}>
-                <EnhancedTableToolbar numSelected={selected.length} title={props.title} headerSummary={props.headerSummary} />
+                <EnhancedTableToolbar numSelected={selected.length} title={props.title} headerSummary={props.headerSummary} viewSelected={viewSelected} />
             {props.data.length === 0 ? <><NoDataOverlay /></> :
             <>
                 <TableContainer>

@@ -10,7 +10,7 @@ from psycopg2.extras import RealDictCursor
 import pandas as pd
 from werkzeug.security import generate_password_hash, check_password_hash
 
-db_schema_version = '11'
+db_schema_version = '18'
 
 from pathlib import Path
 

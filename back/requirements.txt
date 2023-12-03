@@ -46,6 +46,7 @@ python-dateutil==2.8.2
 python-dotenv==0.19.2
 pytz==2021.3
 pyzmq==22.3.0
+requests-cache
 six==1.16.0
 SQLAlchemy==1.4.31
 stack-data==0.1.4
@@ -55,3 +56,4 @@ traitlets==5.1.1
 typing-extensions==4.0.1
 wcwidth==0.2.5
 Werkzeug==2.0.2
+yfinance

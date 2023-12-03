@@ -7,6 +7,7 @@ export const upload_holdings_url = baseURL+"/upload_holdings";
 // TODO : create api using axios
 const api = axios.create({
     baseURL: baseURL,
+    withCredentials: true
 })
 
 // TODO: Request interceptor for adding the bearer token
@@ -15,6 +16,7 @@ api.interceptors.request.use(
         const token = localStorage.getItem('token');
         if(token) {
             config.headers.Authorization = `Bearer ${token}`
+            config.headers.withCredentials = true;
         }
         return config
     },
@@ -25,8 +27,11 @@ api.interceptors.request.use(
 )
 
 api.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        return response
+    },
     (error) => {
+        console.log(error)
         if(error.response.status === 401) {
             localStorage.removeItem('token')
             localStorage.removeItem('user')
@@ -76,6 +81,27 @@ export const handleProcessFile = (fieldName, file, metadata, load, error, progre
     }).catch((err) => {
         error('Error uploading the file')
     })
+}
+
+export const getStockDetails = (symbol) => {
+    return api.get('/stocks', {params:{symbol:symbol}})
+}
+
+export const saveRecommendations = (param) => {
+    return api.post('/recommendations', param)
+}
+
+export const saveRecommendationsTrades = (param) => {
+    return api.post('/recommendations_trades', param)
+}
+
+
+export const getRecommendations = () => {
+    return api.get('/recommendations')
+}
+
+export const addBroker = (param) => {
+    return api.post('/brokers', param)
 }
 
 // TODO: export api endpoints
