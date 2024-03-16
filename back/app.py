@@ -426,19 +426,25 @@ def bank_accounts():
 
 
 @app.route('/holdings')
-@cross_origin()
+# @cross_origin()
 def get_holdings():
 
     record_date = request.args.get('date')
 
-    datetime_object = datetime.datetime.fromisoformat(
-        record_date.replace("Z", "+00:00"))
+    if record_date is None:
+        # get latest record-date from the database
+        sql = "SELECT max(record_date) FROM omni.stock_data"
+        record_date = context().db.select_from_db(sql, as_dataframe=True).iloc[0][0]
+    else:
+        record_date = datetime.datetime.fromisoformat(
+            record_date.replace("Z", "+00:00"))
+        # Format the datetime object as a date string
+        record_date = record_date.strftime("%Y-%m-%d")
 
-    # Format the datetime object as a date string
-    output_date_string = datetime_object.strftime("%Y-%m-%d")
 
-    sql = "SELECT * FROM omni.stock_data WHERE user_name = 'CY7213' and record_date = '%s'" % (
-        output_date_string)
+
+    sql = "SELECT * FROM omni.stock_data WHERE record_date = '%s'" % (
+        record_date)
     equity = context().db.select_from_db(sql, as_dataframe=True)
 
     if not equity.empty:
@@ -461,7 +467,8 @@ def get_holdings():
                 'value': total_value,
                 'pl': total_pl,
                 'pl_pct': total_pl_pct,
-            }
+            },
+            'record_date': record_date
 
         }
     else:

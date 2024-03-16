@@ -84,10 +84,16 @@ const Holdings = () => {
     const [selectedDate, setSelectedDate] = React.useState(null);
     const [selectedSectors, setselectedSectors] = useState(null);
 
+    useEffect(() => {
+        fetchData(true)
+    }, [])
 
-    const fetchData = async () => {
 
-        if (selectedDate === null) {
+    const fetchData = async (isInitial=false) => {
+
+
+        
+        if (selectedDate === null && isInitial === false) {
             showAlert('Select a date to fetch holdings', 'error');
         }
 
@@ -109,17 +115,56 @@ const Holdings = () => {
 
     console.log(holdings)
 
+    
 
 
     const handleDateChange = (date) => {
         setSelectedDate(date);
     };
 
+    const groupData = () => {
+        const groupedBySymbol = holdings.reduce((acc, curr) => {
+            const symbol = curr.symbol;
+            if (!acc[symbol]) {
+              acc[symbol] = {
+                  quantity_available:0,
+                  invested: 0,
+                value: 0,
+                unrealized_pl: 0,
+                unrealized_pl_pct: 0,
+              };
+            }
+            acc[symbol].quantity_available +=  curr.quantity_available;
+            acc[symbol].invested += curr.invested;
+            acc[symbol].average_price = acc[symbol].invested/acc[symbol].quantity_available;
+            acc[symbol].value += curr.value;
+            acc[symbol].unrealized_pl += curr.unrealized_pl;
+            acc[symbol].unrealized_pl_pct = acc[symbol].invested ? (acc[symbol].value-acc[symbol].invested)/acc[symbol].invested*100 : null;
+            acc[symbol].sector = curr.sector;
+            acc[symbol].record_date = curr.record_date;
+            acc[symbol].previous_closing_price = curr.previous_closing_price;
+            acc[symbol].weight = summary.value ? (acc[symbol].value/summary.value)*100 : 0;
+            return acc;
+          }, {});
+
+          const newData = Object.entries(groupedBySymbol).map(([symbol, values]) => {
+            return {
+              symbol,
+              ...values
+            };
+          });
+
+          return newData
+    }
+
     const filterHoldings = (param) => {
+
+
+
         if (param === null) {
-            return holdings
+            return groupData()
         } else {
-            return holdings.filter((holding) => holding.sector === param);
+            return groupData().filter((holding) => holding.sector === param);
         }
     }
 
@@ -149,10 +194,10 @@ const Holdings = () => {
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
                         {holdings.length && <>
                             <Box>
-                                <PieChart data={holdings} chartType='stock' />
+                                <PieChart data={groupData()} chartType='stock' />
                             </Box>
                             <Box>
-                                <PieChart data={holdings} chartType='sector' updateCallback={updateSelectedSectors} />
+                                <PieChart data={groupData()} chartType='sector' updateCallback={updateSelectedSectors} />
                             </Box>
                         </>}
                     </Box>

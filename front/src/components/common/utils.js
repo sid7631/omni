@@ -13,7 +13,7 @@ export function plMarker(num, percentage = false, prefix = false, prefixTextPosi
     
 
     if (formatedNum === false) {
-        return <Box sx={{ color: '#84b430' }}>{prefix? prefixTextPositive: ''}{num}{percentage ? '%' : ''}</Box>
+        return <Box sx={{ color: '#339966' }}>{prefix? prefixTextPositive: ''}{num}{percentage ? '%' : ''}</Box>
     } else {
         return <Box sx={{ color: 'error.main' }}>{prefix? prefixTextNegative: ''}{num}{percentage ? '%' : ''}</Box>
     }

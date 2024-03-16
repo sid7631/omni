@@ -29,3 +29,5 @@ back/data/
 back/__pycache__/*
 back/database.ini
 back/src/__pycache__/*
+equity.csv
+front/src/components/common/try.js

@@ -28,6 +28,7 @@ import SidebarStocks from './components/common/sidebars/SidebarStocks';
 import RecommendationsDashboard from './components/finance/RecommendationsDashboard';
 import { LoadingProvider } from './components/common/loading/Loading';
 import { LoadingIndicatorGlobal } from './components/common/LoadingIndicator';
+import NotFound from './components/common/NotFound';
 
 
 const theme = createTheme({
@@ -68,7 +69,9 @@ function App() {
         <UserProvider>
         <LoadingProvider>
         <LoadingIndicatorGlobal />
-          <Box sx={{ display: 'flex' , backgroundColor: '#f6f7f9', minHeight: '100vh' }}>
+          <Box sx={{ display: 'flex' , 
+          backgroundColor: '#f6f7f9', 
+          minHeight: '100vh' }}>
             <CssBaseline />
             <Header open={open} handleDrawerOpen={handleDrawerOpen} />
             <GlobalAlert />
@@ -97,6 +100,7 @@ function App() {
                     />
                   </Route>
                   <Route path='/settings' element={<ProtectedRoute element={AccountPage} />} />
+                  <Route path='*' element={<NotFound />} />
                 </Routes>
               </Router>
             </Box>

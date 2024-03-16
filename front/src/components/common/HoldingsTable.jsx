@@ -378,7 +378,7 @@ export default function HoldingsTable(props) {
                                                 <TableCell align="right">{formatAmount(row['previous_closing_price'])}</TableCell>
                                                 <TableCell align="right">{formatAmount(row['value'])}</TableCell>
                                                 <TableCell align="right">{plMarker(formatAmount(row['unrealized_pl']))}</TableCell>
-                                                <TableCell align="right">{plMarker(formatAmount(row['unrealized_pl_pct']), true)}</TableCell>
+                                                <TableCell align="right">{row['unrealized_pl_pct'] ? plMarker(formatAmount(row['unrealized_pl_pct']), true): '-'}</TableCell>
                                                 <TableCell align="right">{formatAmount(row['weight'])}%</TableCell>
                                             </TableRow>
                                         );
