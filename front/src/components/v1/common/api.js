@@ -104,5 +104,9 @@ export const addBroker = (param) => {
     return api.post('/brokers', param)
 }
 
+export const refreshHoldings = (param) => {
+    return api.get('/refresh_holdings')
+}
+
 // TODO: export api endpoints
 export default api;

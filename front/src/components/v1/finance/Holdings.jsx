@@ -13,6 +13,7 @@ import HoldingsTable from '../common/HoldingsTable';
 import { useAlert } from '../common/AlertContext';
 import PieChart from './PieChart';
 import { extractSectors } from '../common/utils';
+import AccountsList from '../common/AccountsList';
 
 
 const headCells = [
@@ -83,10 +84,17 @@ const Holdings = () => {
     const [summary, setsummary] = useState(null);
     const [selectedDate, setSelectedDate] = React.useState(null);
     const [selectedSectors, setselectedSectors] = useState(null);
+    const [updateCounter, setUpdateCounter] = useState(0);
+    const [recordDate, setRecordDate] = useState(null);
+    const [accounts, setAccounts] = useState(null);
 
     useEffect(() => {
         fetchData(true)
     }, [])
+
+    useEffect((updateCounter) => {
+        fetchData(true)
+    },[updateCounter])
 
 
     const fetchData = async (isInitial=false) => {
@@ -105,7 +113,9 @@ const Holdings = () => {
             if (response.status === 200) {
                 console.log(response)
                 setholdings(response.data.holdings)
+                setRecordDate(response.data.record_date)
                 setsummary(response.data.summary)
+                setAccounts(response.data.accounts)
             }
         } catch (error) {
             console.log(error)
@@ -172,8 +182,9 @@ const Holdings = () => {
         setselectedSectors(param)
     }
 
+
     return (
-        <Box>
+        <Box key={updateCounter}>
             <Box width='100%' sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <DateDropdown label={'Date'} handleDateChange={handleDateChange} selectedDate={selectedDate} />
@@ -186,7 +197,7 @@ const Holdings = () => {
                 </Box>
 
             </Box>
-            {holdings === null || summary === null ?
+            {holdings === null || summary === null || accounts === null ?
                 ''
                 :
                 <>
@@ -199,9 +210,12 @@ const Holdings = () => {
                             <Box>
                                 <PieChart data={groupData()} chartType='sector' updateCallback={updateSelectedSectors} />
                             </Box>
+                            <Box>
+                                <AccountsList accounts={accounts} />
+                            </Box>
                         </>}
                     </Box>
-                    <HoldingsTable title='Holdings' data={filterHoldings(selectedSectors)} headCells={headCells} headerSummary={summary} />
+                    <HoldingsTable title='Holdings' recordDate={recordDate} data={filterHoldings(selectedSectors)} headCells={headCells} headerSummary={summary}  updateCounter={updateCounter} setUpdateCounter={setUpdateCounter} />
                 </>
 
             }

@@ -31,3 +31,11 @@ back/database.ini
 back/src/__pycache__/*
 equity.csv
 front/src/components/common/try.js
+back/app/__pycache__/*
+back/app/api/__pycache__/*
+back/app/config/__pycache__/*
+back/app/models/__pycache__/*
+yfinance.cache
+back/transactions.csv
+back/output_transactions.json
+back/Untitled-1.ipynb

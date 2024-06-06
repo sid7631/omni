@@ -15,15 +15,19 @@ import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
+import CircularProgress from '@mui/material/CircularProgress';
 import Tooltip from '@mui/material/Tooltip';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { visuallyHidden } from '@mui/utils';
 import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
 import { formatAmount, plMarker } from './utils';
 import NoDataOverlay from './NoDataOverlay';
-import {isEmpty} from 'lodash';
+import { isEmpty } from 'lodash';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import { useNavigate } from 'react-router-dom';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import { styled } from '@mui/system';
+import { refreshHoldings } from './api';
 
 
 function descendingComparator(a, b, orderBy) {
@@ -116,6 +120,23 @@ EnhancedTableHead.propTypes = {
 
 const EnhancedTableToolbar = (props) => {
     const { numSelected } = props;
+    const [isRefresh, setIsRefresh] = React.useState(false)
+
+    const handleRefresh = async() => {
+        console.log('refresh')
+        setIsRefresh(true)
+        try {
+            const response = await refreshHoldings('stocks')
+            if (response.status === 200) {
+                console.log(response)
+                setIsRefresh(false)
+                props.setUpdateCounter(props.updateCounter+1)
+            }
+        } catch (error) {
+            console.log(error)
+            setIsRefresh(false)
+        }
+    }
 
     return (
         <Toolbar
@@ -145,8 +166,17 @@ const EnhancedTableToolbar = (props) => {
                         id="tableTitle"
                         component="div"
                     >
-                        {props.title}
+                        {/* {props.title} */}
+
+                        <Typography variant='caption' component='span'>
+
+                            Last updated: : {new Date(props.recordDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </Typography>
+                        <IconButton color="primary" sx={{marginLeft:2}} onClick={handleRefresh}>
+                           {isRefresh?<CircularProgress size={24} />:<RefreshIcon />} 
+                        </IconButton>
                     </Typography>
+
                     {!isEmpty(props.headerSummary) && <>
 
                         <Box padding={'0 4%'}>
@@ -204,7 +234,10 @@ const EnhancedTableToolbar = (props) => {
                             >
 
                                 <Box component='span' marginRight={2}>&#8377;{formatAmount(props.headerSummary.pl)}</Box>
-                                <span>&#9650; &#9660;{formatAmount(props.headerSummary.pl_pct)}%</span>
+                                <Box component='span' sx={{fontSize:'small'}} >
+                                    {props.headerSummary.pl_pct > 0 ? <span>&#9650; {formatAmount(props.headerSummary.pl_pct)}%</span> : <span>&#9660; {formatAmount(props.headerSummary.pl_pct)}%</span>}
+                                </Box>
+                                {/* <span>&#9650; &#9660;{formatAmount(props.headerSummary.pl_pct)}%</span> */}
                             </Typography>
                         </Box>
                     </>}
@@ -215,12 +248,12 @@ const EnhancedTableToolbar = (props) => {
             {numSelected > 0 ? (
                 <Tooltip title="Delete">
                     <>
-                    <IconButton onClick={props.viewSelected}>
-                        <AssessmentIcon />
-                    </IconButton>
-                    <IconButton>
-                        <DeleteIcon />
-                    </IconButton>
+                        <IconButton onClick={props.viewSelected}>
+                            <AssessmentIcon />
+                        </IconButton>
+                        <IconButton>
+                            <DeleteIcon />
+                        </IconButton>
                     </>
                 </Tooltip>
             ) : (
@@ -310,103 +343,103 @@ export default function HoldingsTable(props) {
     return (
         <Box sx={{ width: '100%' }}>
             <Paper sx={{ width: '100%', mb: 2 }}>
-                <EnhancedTableToolbar numSelected={selected.length} title={props.title} headerSummary={props.headerSummary} viewSelected={viewSelected} />
-            {props.data.length === 0 ? <><NoDataOverlay /></> :
-            <>
-                <TableContainer>
-                    <Table
-                        sx={{ minWidth: 750 }}
-                        aria-labelledby="tableTitle"
-                        size={dense ? 'small' : 'medium'}
-                    >
-                        <EnhancedTableHead
-                            numSelected={selected.length}
-                            order={order}
-                            orderBy={orderBy}
-                            onSelectAllClick={handleSelectAllClick}
-                            onRequestSort={handleRequestSort}
-                            rowCount={props.data.length}
-                            headCells={props.headCells}
-                        />
-                        
+                <EnhancedTableToolbar recordDate={props.recordDate} numSelected={selected.length} title={props.title} headerSummary={props.headerSummary} viewSelected={viewSelected} />
+                {props.data.length === 0 ? <><NoDataOverlay /></> :
+                    <>
+                        <TableContainer>
+                            <Table
+                                sx={{ minWidth: 750 }}
+                                aria-labelledby="tableTitle"
+                                size={dense ? 'small' : 'medium'}
+                            >
+                                <EnhancedTableHead
+                                    numSelected={selected.length}
+                                    order={order}
+                                    orderBy={orderBy}
+                                    onSelectAllClick={handleSelectAllClick}
+                                    onRequestSort={handleRequestSort}
+                                    rowCount={props.data.length}
+                                    headCells={props.headCells}
+                                />
 
-                            <TableBody>
-                                {/* if you don't need to support IE11, you can replace the `stableSort` call with:
+
+                                <TableBody>
+                                    {/* if you don't need to support IE11, you can replace the `stableSort` call with:
                  props.data.slice().sort(getComparator(order, orderBy)) */}
-                                {stableSort(props.data, getComparator(order, orderBy))
-                                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                    .map((row, index) => {
-                                        const isItemSelected = isSelected(row['symbol']);
-                                        const labelId = `enhanced-table-checkbox-${index}`;
+                                    {stableSort(props.data, getComparator(order, orderBy))
+                                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                        .map((row, index) => {
+                                            const isItemSelected = isSelected(row['symbol']);
+                                            const labelId = `enhanced-table-checkbox-${index}`;
 
-                                        return (
-                                            <TableRow
-                                                hover
-                                                onClick={(event) => handleClick(event, row['symbol'])}
-                                                role="checkbox"
-                                                aria-checked={isItemSelected}
-                                                tabIndex={-1}
-                                                key={row['id']}
-                                                selected={isItemSelected}
-                                            >
-                                                <TableCell padding="checkbox">
-                                                    <Checkbox
-                                                        color="primary"
-                                                        checked={isItemSelected}
-                                                        inputProps={{
-                                                            'aria-labelledby': labelId,
-                                                        }}
-                                                    />
-                                                </TableCell>
-                                                <TableCell
-                                                    component="th"
-                                                    id={labelId}
-                                                    scope="row"
-                                                    padding="none"
+                                            return (
+                                                <TableRow
+                                                    hover
+                                                    onClick={(event) => handleClick(event, row['symbol'])}
+                                                    role="checkbox"
+                                                    aria-checked={isItemSelected}
+                                                    tabIndex={-1}
+                                                    key={row['id']}
+                                                    selected={isItemSelected}
                                                 >
-                                                    <Box display='flex' justifyContent='space-between' alignItems='center'>
-                                                        <Box component='span'>{row['symbol']}</Box>
-                                                        <Tooltip title="Long term holdings" placement="top" arrow>
-                                                            <Box sx={{ color: 'success.main' }} component='span'>{row['quantity_long_term'] > 0 ? <><CalendarTodayOutlinedIcon color='success' fontSize='small' sx={{ height: '12px', width: '12px' }} /> {row['quantity_long_term']}</> : ''}</Box>
-                                                        </Tooltip>
-                                                    </Box>
+                                                    <TableCell padding="checkbox">
+                                                        <Checkbox
+                                                            color="primary"
+                                                            checked={isItemSelected}
+                                                            inputProps={{
+                                                                'aria-labelledby': labelId,
+                                                            }}
+                                                        />
+                                                    </TableCell>
+                                                    <TableCell
+                                                        component="th"
+                                                        id={labelId}
+                                                        scope="row"
+                                                        padding="none"
+                                                    >
+                                                        <Box display='flex' justifyContent='space-between' alignItems='center'>
+                                                            <Box component='span'>{row['symbol']}</Box>
+                                                            <Tooltip title="Long term holdings" placement="top" arrow>
+                                                                <Box sx={{ color: 'success.main' }} component='span'>{row['quantity_long_term'] > 0 ? <><CalendarTodayOutlinedIcon color='success' fontSize='small' sx={{ height: '12px', width: '12px' }} /> {row['quantity_long_term']}</> : ''}</Box>
+                                                            </Tooltip>
+                                                        </Box>
 
-                                                </TableCell>
-                                                <TableCell align="right">{formatAmount(row['quantity_available'])}</TableCell>
-                                                <TableCell align="right">{formatAmount(row['average_price'])}</TableCell>
-                                                <TableCell align="right">{formatAmount(row['invested'])}</TableCell>
-                                                <TableCell align="right">{formatAmount(row['previous_closing_price'])}</TableCell>
-                                                <TableCell align="right">{formatAmount(row['value'])}</TableCell>
-                                                <TableCell align="right">{plMarker(formatAmount(row['unrealized_pl']))}</TableCell>
-                                                <TableCell align="right">{row['unrealized_pl_pct'] ? plMarker(formatAmount(row['unrealized_pl_pct']), true): '-'}</TableCell>
-                                                <TableCell align="right">{formatAmount(row['weight'])}%</TableCell>
-                                            </TableRow>
-                                        );
-                                    })}
-                                {emptyRows > 0 && (
-                                    <TableRow
-                                        style={{
-                                            height: (dense ? 33 : 53) * emptyRows,
-                                        }}
-                                    >
-                                        <TableCell colSpan={6} />
-                                    </TableRow>
-                                )}
-                            </TableBody>
-                        
-                    </Table>
-                </TableContainer>
-                <TablePagination
-                    rowsPerPageOptions={[10, 25, 50, 100]}
-                    component="div"
-                    count={props.data.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                />
-            </>
-}
+                                                    </TableCell>
+                                                    <TableCell align="right">{formatAmount(row['quantity_available'])}</TableCell>
+                                                    <TableCell align="right">{formatAmount(row['average_price'])}</TableCell>
+                                                    <TableCell align="right">{formatAmount(row['invested'])}</TableCell>
+                                                    <TableCell align="right">{formatAmount(row['previous_closing_price'])}</TableCell>
+                                                    <TableCell align="right">{formatAmount(row['value'])}</TableCell>
+                                                    <TableCell align="right">{plMarker(formatAmount(row['unrealized_pl']))}</TableCell>
+                                                    <TableCell align="right">{row['unrealized_pl_pct'] ? plMarker(formatAmount(row['unrealized_pl_pct']), true) : '-'}</TableCell>
+                                                    <TableCell align="right">{formatAmount(row['weight'])}%</TableCell>
+                                                </TableRow>
+                                            );
+                                        })}
+                                    {emptyRows > 0 && (
+                                        <TableRow
+                                            style={{
+                                                height: (dense ? 33 : 53) * emptyRows,
+                                            }}
+                                        >
+                                            <TableCell colSpan={6} />
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+
+                            </Table>
+                        </TableContainer>
+                        <TablePagination
+                            rowsPerPageOptions={[10, 25, 50, 100]}
+                            component="div"
+                            count={props.data.length}
+                            rowsPerPage={rowsPerPage}
+                            page={page}
+                            onPageChange={handleChangePage}
+                            onRowsPerPageChange={handleChangeRowsPerPage}
+                        />
+                    </>
+                }
             </Paper>
             {/* <FormControlLabel
         control={<Switch checked={dense} onChange={handleChangeDense} />}
