@@ -6,36 +6,41 @@ import yfinance as yf
 from datetime import datetime, date, timedelta
 import time
 
-
-@bp.route('/accounts', methods=['POST'])
-def add_account():
-    data = request.get_json()
-    account_name = data.get('account_name')
-    account_type = data.get('account_type')
+def get_stock(symbol, param):
+    stock = yf.Ticker(symbol+'.NS')
     
-    if not account_name or not account_type:
-        return jsonify({'error': 'Missing account_name or account_type'}), 400
-
-    new_account = Account(account_name=account_name, account_type=account_type)
-    db.session.add(new_account)
-    db.session.commit()
-    return jsonify({
-        'account_id': new_account.account_id,
-        'account_name': new_account.account_name,
-        'account_type': new_account.account_type
-    }), 201
+    if param == 'info':
+        return {
+            'symbol':symbol,
+            'company_name':stock.info.get('longName'),
+            'sector':stock.info.get('longName'),
+            'industry':stock.info.get('industry'),
+            'exchange':stock.info.get('exchange')
+        }
+    
 
 @bp.route('/stocks', methods=['POST'])
 def add_stock():
-    symbol = request.json.get('symbol')
-    company_name = request.json.get('symbol')
-    if symbol and company_name:
-        new_stock = Stock(symbol=symbol, company_name=company_name)
-        db.session.add(new_stock)
-        db.session.commit()
-        return jsonify(new_stock.id), 201
+    data = request.get_json()
+    symbol = data.get('symbol')
+
+    if symbol :
+        stock_entry = Stock.query.filter_by(symbol=symbol).first()
+        if not stock_entry:
+            stock_data = get_stock(symbol=symbol, param='info')
+            stock_entry = Stock(symbol=stock_data.get('symbol'), 
+                                company_name=stock_data.get('company_name'),
+                                sector=stock_data.get('sector'),
+                                industry=stock_data.get('industry'),
+                                exchange=stock_data.get('exchange')
+                                )
+            db.session.add(stock_entry)
+            db.session.commit()
+            
+        return jsonify(stock_entry.stock_id), 201
+        
     else:
-        return jsonify({"error": "Missing data for symbol or company name"}), 400
+        return jsonify({"error": "Missing data for symbol"}), 400
 
 @bp.route('/update_stock/<string:symbol>/<string:start_date>', methods=['POST'])
 def update_stock(symbol, start_date):

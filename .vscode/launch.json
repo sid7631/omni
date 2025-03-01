@@ -36,7 +36,8 @@
             "request": "launch",
             "runtimeExecutable": "npm",
             "runtimeArgs": [
-                "start"
+                "start",
+
             ],
             "cwd": "${workspaceFolder}/front",
             "protocol": "inspector",
