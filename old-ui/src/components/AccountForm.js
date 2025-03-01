@@ -1,7 +1,7 @@
 // src/components/AccountForm.js
 import React, { useState } from 'react';
 import axios from 'axios';
-import { API_URLS } from '../config/config';  // Adjust the path as necessary
+import { API_URLS } from '../../../config/config';  // Adjust the path as necessary
 
 function AccountForm() {
     const [accountName, setAccountName] = useState('');
